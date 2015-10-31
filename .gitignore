@@ -1,0 +1,12 @@
+node_modules
+public
+script1.sh
+stockmark_fcc.komodoproject
+npm-debug.log
+.komodotools
+.tmp
+.idea
+client/bower_components
+dist
+/server/config/local.env.js
+npm-debug.log
