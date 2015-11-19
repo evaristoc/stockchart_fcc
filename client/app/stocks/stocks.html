@@ -52,8 +52,12 @@ ng-click="updateDate()" />
 <div class="col-md-6">
 This is the stocks view.
 {{message}}
+<form>
+<label><input type="radio" name="mode" value="grouped"> Grouped</label>
+<label><input type="radio" name="mode" value="stacked" checked> Stacked</label>
+</form>
 <div linear-chart chart-data="stockdata"></div>
 </div>
 </div>
 </div>
-{{stockdata}}
+<!--{{stockdata}}-->

@@ -15,7 +15,8 @@ angular.module('stockchartFccApp')
       yahoofinanceService
         .performQuery(tickers, $scope.date.start, $scope.date.end)
         .then(function success(data){
-          console.log(data);
+          //console.log(data);
+          $scope.stockdata = data;
         });
       
       $scope.updateDate = function(){
