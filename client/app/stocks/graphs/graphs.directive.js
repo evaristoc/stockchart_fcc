@@ -11,7 +11,8 @@
 //http://stackoverflow.com/questions/18068066/exit-not-working-properly
 //http://matthewgladney.com/blog/data-science/using-dynamic-data-and-making-reusable-d3-js-charts/
 //http://jsfiddle.net/odiseo/ZnkN6/light/
-http://www.delimited.io/blog/2014/7/16/d3-directives-in-angularjs
+//http://www.delimited.io/blog/2014/7/16/d3-directives-in-angularjs
+//https://medium.com/@c_behrens/enter-update-exit-6cafc6014c36#.58nna1ecf
 angular.module('stockchartFccApp')
     .directive('linearChart', ['$window', '$timeout', 'd3Service', function ($window, $timeout, d3Service) {
         return {
@@ -47,12 +48,35 @@ angular.module('stockchartFccApp')
                     //    scope.render(newVal);
                     //}, true);
                     
-                    scope.render = function(data){
+                    scope.render = function(data, oldData, newData){
                         // organising dates http://stackoverflow.com/questions/7114152/given-a-start-and-end-date-create-an-array-of-the-dates-between-the-two
                         //http://stackoverflow.com/questions/3894048/what-is-the-best-way-to-initialize-a-javascript-date-to-midnight
                         //var salesDataToPlot=scope[attrs.chartData];
+////////////////////////////////////////////////////////////////////
+//INITIALISING THE ELEMENTS: CLEANING UP...
+                        console.log("in render ", oldData, newData)
+                        //OJO!!! ----------------> http://jsfiddle.net/rolfsf/8bXAN/
+                        //remove previous elements HERE!
+                        d3.select(elem[0]).select('svg').remove();
+                        //d3.select('svg').remove();
+                        //if (typeof legend != "undefined") {
+                        //    console.log("gotcha...");
+                        //}
 
-                    
+                        //http://stackoverflow.com/questions/4777077/removing-elements-by-class-name
+                        function removeElementsByClass(className){
+                            var elements = document.getElementsByClassName(className);
+                            while(elements.length > 0){
+                                elements[0].parentNode.removeChild(elements[0]);
+                            }
+                        } 
+ 
+                        if (document.getElementsByClassName("legend")) {
+                            console.log("legend found!");
+                            removeElementsByClass("legend");
+                        }
+                        
+                        
 /////////////////////////////////////////////////////////////////////
 //SETTING UP THE SVG ATTRIBUTES AND OTHER FORMATTING
                         //console.log('inside serviced d3; here d3', d3);
@@ -162,7 +186,7 @@ console.log('this is the render function of the directive ', matrix_data[0]);
 ///////////////////////////////////////////////////////////////////////
 //DECLARING THE SVG OBJECT
 
-                        
+                        //appending divs svg, g (group) and some attrs to elem[0] and calling svg
                         var svg = d3.select(elem[0])
                             .append("svg")
                             .attr("width", width + margin.left + margin.right)
@@ -237,29 +261,51 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                         
                         //NOTE: initialising the VALUES into the SVG CONTAINER
                         // Also, assigning COLOURS
+                        //selecting unexistent class valgroup to appended g's to bind the data to (enter)
+                        //append to div svg:g? or append svg:g to each valgroup?
+                        //iteration is over layers; d is each LAYERS element and i is the index of layers...
+                        ////////////
+                        //OJO!!! udemy course style: fracturing the code a bit more......
                         var valgroup = svg.selectAll("g.valgroup")
                             .data(layers)
-                            .enter()
-                            .append("svg:g")
-                            .attr("class", "valgroup")
+                        
+                        valgroup.enter()
+                            .append("svg:g") //this is an APPEND TO that follows and ENTER!!
+                            .classed("valgroup", true);
+                            //.attr("class", "valgroup")
+
+                        if (status == false) {
+                            valgroup.exit().remove();
+                        }
+                            
+                        valgroup
                             .style("fill", function(d, i) {
                                 //console.log(color_range(i));
                                 return color_range(i);
                             })
                             .style("stroke", function(d, i) { return d3.rgb(color_range(i)).darker(); });          
-                            
 
-                        //NOTE: initialising LEGENDS    
+
+                        ///////////    
+
+                        //NOTE: initialising LEGENDS
                         var legendRectSize = 20;
                         var legendSpacing = 5;
                         
+                        
+                        //why d3.select(...)? because is a NEW svg, it is NOT the chart!
                         var legend = d3.select('svg')
                             .append("g")
                             .selectAll("g")
                             .data(color_range.domain())
-                            .enter()
+                            
+                        legend.enter()
                             .append('g')
                             .attr('class', 'legend')
+                            
+                            
+                        legend
+                            //.exit()
                             .attr('transform', function(d, i) {
                                 var height = legendRectSize;
                                 var x = 405;
@@ -276,31 +322,43 @@ console.log('this is the render function of the directive ', matrix_data[0]);
 
                         //NOTE: the values are now AVAILABLE to the figures
                         // this one creates the BARS, and it is a reusable functionality
+                        ////////////
+                        //OJO!!! udemy course style: fracturing the code a bit more......
                         var rect = valgroup.selectAll("rect")
-                            .data(function(d){return d;})
-                            .enter()
-                            .append("svg:rect")
+                            .data(function(d){return d;});
+
+                        rect.enter()
+                            .append("svg:rect") //this is an APPEND TO that follows and ENTER!!
+                        
+                        //NOTE: discovered that this is the initial form of the rects   
+                        rect
+                            //.exit()
                             .attr("x", function(d) { return x(d.x); })
                             .attr("y", height)
                             .attr("width", x.rangeBand())
-                            .attr("height", 0)
-                            //.exit();
-
+                            .attr("height", 0);
+                        ////////////
+                            
+                            
                         //NOTE: drawing the legend
-                        legend.append('rect')
+                        legend
+                            .append('rect')
                             .attr('width', legendRectSize)
                             .attr('height', legendRectSize)
                             .style('fill', color_range)
                             .style('stroke', color_range);
  
-                        legend.append('text')
+                        legend
+                            .append('text')
                             .attr('x', legendRectSize + legendSpacing)
                             .attr('y', legendRectSize - legendSpacing)
                             .text(function(d) { return tickersname[d]; });
-                                               
+
+                                              
                         //NOTE: initialising the ANIMATION
                         //starts as stacked...
-                        rect.transition()
+                        rect
+                            .transition()
                             .delay(function(d, i) { return i * 10; })
                             .attr("y", function(d) { return y(d.y0 + d.y); })
                             .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
@@ -395,7 +453,7 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                         };                            
                         //NOTE: have to remove the graph for updating
                         //http://stackoverflow.com/questions/12992351/how-to-update-elements-of-d3-force-layout-when-the-underlying-data-changes
-
+                        
                     };
 
 /////////////////////////////////////////////////////////////////////////
@@ -404,8 +462,8 @@ console.log('this is the render function of the directive ', matrix_data[0]);
 //http://cloudspace.com/blog/2014/03/25/creating-d3.js-charts-using-angularjs-directives/#.Vk4qgrxVKlM
                     scope.$watch('chartData', function(newVal, oldVal){
                         console.log("data inside the directive",scope.chartData);
-                        console.log(newVal == oldVal);
-                        scope.render(newVal);
+                        //console.log(newVal == oldVal);
+                        scope.render(newVal, oldVal, newVal);
                     }, true);
 
 
@@ -414,6 +472,7 @@ console.log('this is the render function of the directive ', matrix_data[0]);
         }
     }
 ]);
+
 
 /////////////////////////////////////////////////////////////////////////
 //INITIALISING DATA
