@@ -31,7 +31,11 @@ exports.create = function(req, res) {
     if (ticker) return res.status(403).send('Symbol (ticker) already exists.');
     Stocks.create({ticker: ticker}, function(err){
         if (err) return handleError(res, err);
-        res.send(200);    
+        //res.send(200);
+        Stocks.find(function (err, tickers) {
+          if(err) { return handleError(res, err); }
+          return res.status(200).json(tickers);
+        });         
     })
   });
 };
@@ -46,7 +50,11 @@ exports.create = function(req, res) {
 //    var updated = _.merge(stocks, req.body);
 //    updated.save(function (err) {
 //      if (err) { return handleError(res, err); }
-//      return res.status(200).json(stocks);
+//      Stocks.find(function (err, tickers) {
+//        if(err) { return handleError(res, err); }
+//        return res.status(200).json(tickers);
+//      });    
+//      //return res.status(200).json(stocks);
 //    });
 //  });
 //};
@@ -59,7 +67,11 @@ exports.destroy = function(req, res) {
     if(!ticker) { return res.status(404).send('Not Found'); }
     ticker.remove(function(err) {
       if(err) { return handleError(res, err); }
-      return res.status(204).send('No Content');
+        Stocks.find(function (err, tickers) {
+          if(err) { return handleError(res, err); }
+          return res.status(200).json(tickers);
+        });       
+      //return res.status(204).send('No Content');
     });
   });
 };

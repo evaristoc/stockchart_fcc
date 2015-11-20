@@ -1,9 +1,22 @@
 'use strict';
 //http://cloudspace.com/blog/2014/03/25/creating-d3.js-charts-using-angularjs-directives/#.Vf04frylilM
+//http://bl.ocks.org/biovisualize/5372077
+//http://www.sitepoint.com/creating-charting-directives-using-angularjs-d3-js/
+//http://stackoverflow.com/questions/31613196/how-to-integrate-d3js-graph-with-angular-directive
+//http://stackoverflow.com/questions/32808040/updating-a-graph-on-change-of-data-in-d3-js
+//http://www.competa.com/blog/2015/10/using-d3-graphs-in-angular-2/
+//https://medium.com/@stides303/dynamic-graphs-with-angular-js-and-d3-js-80b42e869a2#.67mojhmko
+//http://busypeoples.github.io/post/reusable-chart-components-with-angular-d3-js/
+//https://github.com/angularjs-nvd3-directives/angularjs-nvd3-directives/issues/58
+//http://stackoverflow.com/questions/18068066/exit-not-working-properly
+//http://matthewgladney.com/blog/data-science/using-dynamic-data-and-making-reusable-d3-js-charts/
+//http://jsfiddle.net/odiseo/ZnkN6/light/
+http://www.delimited.io/blog/2014/7/16/d3-directives-in-angularjs
 angular.module('stockchartFccApp')
-    .directive('linearChart', ['$window', 'd3Service', function ($window, d3Service) {
+    .directive('linearChart', ['$window', '$timeout', 'd3Service', function ($window, $timeout, d3Service) {
         return {
             restrict: 'EA',
+            replace:true,
             scope: {chartData: '='},
             //http://www.sitepoint.com/creating-charting-directives-using-angularjs-d3-js/
             template:"<svg width='850' height='1200'></svg>",
@@ -12,25 +25,41 @@ angular.module('stockchartFccApp')
                 //    console.log(scope.chartData);
                 //}
                 //));
+
                 d3Service.d3().then(function(d3) {
+                    //svg.selectAll('*').remove();
+                    scope.svg = null;
+                    scope.container = null;
                     elem.text('this is the graphs directive');
                     
-                    scope.rendere = function(data){
-                        console.log('success')
-                    }
+                    //scope.rendere = function(data){
+                    //    console.log('success')
+                    //}
+
+                    //scope.$watch('chartData', function(newVal, oldVal){
+                    //    //console.log("data inside the directive",scope.chartData);
+                    //    console.log(newVal == oldVal);
+                    //    scope.render(newVal);
+                    //}, true);
+                    //
+                    //scope.$watch('chartData', function(newVal){
+                    //    //console.log("data inside the directive",scope.chartData);
+                    //    scope.render(newVal);
+                    //}, true);
                     
                     scope.render = function(data){
                         // organising dates http://stackoverflow.com/questions/7114152/given-a-start-and-end-date-create-an-array-of-the-dates-between-the-two
                         //http://stackoverflow.com/questions/3894048/what-is-the-best-way-to-initialize-a-javascript-date-to-midnight
                         //var salesDataToPlot=scope[attrs.chartData];
-                        
+
+                    
 /////////////////////////////////////////////////////////////////////
 //SETTING UP THE SVG ATTRIBUTES AND OTHER FORMATTING
                         //console.log('inside serviced d3; here d3', d3);
                         //console.log('salesDataToPlot ',salesDataToPlot);
+                        
                         var pathClass = "path";
                         var xScale, yScale, xAxisGen, yAxisGen, lineFun;
-                        
                         
                         var margin = {top: 20, right: 20, bottom: 30, left: 40},
                          width = 480 - margin.left - margin.right,
@@ -81,8 +110,8 @@ angular.module('stockchartFccApp')
                             });
                             ms = ms.sort(function(a,b){return a-b});
                             daterange = daterange.sort(function(a,b){return a-b});
-                            console.log(ms);
-                            console.log(daterange);
+                            //console.log(ms);
+                            //console.log(daterange);
                             var min_m = Math.min.apply(null, ms);
                             var max_m = Math.max.apply(Math, ms);
                             var stdate = Math.min.apply(Math, daterange);
@@ -100,7 +129,7 @@ angular.module('stockchartFccApp')
                         var stdate = findRanges(tickers)[2];
                         var endate = findRanges(tickers)[3];
                         var daterange = findRanges(tickers)[4];
-                        console.log(max_m, min_m, stdate, endate, daterange);    
+                        //console.log(max_m, min_m, stdate, endate, daterange);    
                        
 //BUILD THE REQUIRED DATA STRUCTURE FOR THE STAKED GRAPH
                         //NOTE: try to remember that it is MATRIX OF COLUMNS!!!
@@ -112,7 +141,7 @@ angular.module('stockchartFccApp')
                                 var column = [];
                                 var pos = 1;
                                 daterange.forEach(function(dk){
-                                    console.log(dk);
+                                    //console.log(dk);
                                     if (tickers.hasOwnProperty(tk)) {
                                         if (tickers[tk].hasOwnProperty(dk)){
                                             column.push({x:pos, y:tickers[tk][dk]})
@@ -132,6 +161,8 @@ angular.module('stockchartFccApp')
 console.log('this is the render function of the directive ', matrix_data[0]);                     
 ///////////////////////////////////////////////////////////////////////
 //DECLARING THE SVG OBJECT
+
+                        
                         var svg = d3.select(elem[0])
                             .append("svg")
                             .attr("width", width + margin.left + margin.right)
@@ -140,49 +171,17 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                             .attr("transform",
                             "translate(" + margin.left + "," + margin.top + ")");
 
-                       
-
-/////////////////////////////////////////////////////////////////////////
-//INITIALISING DATA
-//The data already comes in form as suggested by ttp://bl.ocks.org/d3noob/b3ff6ae1c120eea654b5
-//The only problem are the DATES          
-
-
-////Test
-//function bumpLayer(n, o) {
-//
-//  function bump(a) {
-//    var x = 1 / (.1 + Math.random()),
-//        y = 2 * Math.random() - .5,
-//        z = 10 / (.1 + Math.random());
-//    for (var i = 0; i < n; i++) {
-//      var w = (i / n - y) * z;
-//      a[i] += x * Math.exp(-w * w);
-//    }
-//  }
-//
-//  var a = [], i;
-//  for (i = 0; i < n; ++i) a[i] = o + o * Math.random();
-//  for (i = 0; i < 5; ++i) bump(a);
-//  return a.map(function(d, i) { return {x: i, y: Math.max(0, d)}; });
-//}
-//
-//
-//var n = 4, // number of layers
-//    m = 58, // number of samples per layer
-//    stack = d3.layout.stack(),
-//    layers = stack(d3.range(n).map(function() { return bumpLayer(m, .1); })),
-//    yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); }),
-//    yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
-//console.log(layers, yGroupMax, yStackMax);
+                        //if (matrix_data.length) svg.selectAll("*").remove();
+                        //if (matrix_data.length) svg.data(layers).exit().remove();
                             
+                        //svg.selectAll('*').remove();
 /////////////////////////////////////////////////////////////////////////
 //INITIALISING D3 GRAPH OBJECTS
 
                         //http://stackoverflow.com/questions/1069666/sorting-javascript-object-by-property-value
 
                         var n = matrix_data[0].length;
-                        console.log(n);
+                        //console.log(n);
                         //var color_range = d3.scale
                         //    .linear()
                         //    .domain([0, n - 1])
@@ -198,7 +197,7 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                         var layers = stack(matrix_data);
                         var yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); });
                         var yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
-                        console.log(layers, yGroupMax, yStackMax);
+                        //console.log(layers, yGroupMax, yStackMax);
                         
                         //NOTE: scaling the VALUES of X axis
                         var x = d3.scale
@@ -243,7 +242,10 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                             .enter()
                             .append("svg:g")
                             .attr("class", "valgroup")
-                            .style("fill", function(d, i) { console.log(color_range(i)); return color_range(i); })
+                            .style("fill", function(d, i) {
+                                //console.log(color_range(i));
+                                return color_range(i);
+                            })
                             .style("stroke", function(d, i) { return d3.rgb(color_range(i)).darker(); });          
                             
 
@@ -270,17 +272,19 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                       
 
 /////////////////////////////////////////////////////////////////////////
-//DRAWING AND ANIMATION
+//DRAWING
 
                         //NOTE: the values are now AVAILABLE to the figures
                         // this one creates the BARS, and it is a reusable functionality
                         var rect = valgroup.selectAll("rect")
                             .data(function(d){return d;})
-                            .enter().append("svg:rect")
+                            .enter()
+                            .append("svg:rect")
                             .attr("x", function(d) { return x(d.x); })
                             .attr("y", height)
                             .attr("width", x.rangeBand())
-                            .attr("height", 0);
+                            .attr("height", 0)
+                            //.exit();
 
                         //NOTE: drawing the legend
                         legend.append('rect')
@@ -309,7 +313,7 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                         
                         
                         //NOTE: drawing the Y AXIS
-                        console.log(width - margin.left);
+                        //console.log(width - margin.left);
                         var yaxis_pos = width - margin.left
                         
                         svg.append("g")
@@ -323,13 +327,16 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                                 .style("text-anchor", "end")
                                 .text("close price ($)")
                         
+
+//////////////////////////////////////////////////////////////////////
+//ANIMATION SECTION
                       
                         //NOTE: responding to events: state and function    
                         d3.selectAll("input")
                             .on("change", change);
                         
-                        console.log(0, yAxis);
-                        
+
+                        //NOTE: initial posititioning and a changing 
                         var timeout = setTimeout(function() {
                             d3.select("input[value=\"grouped\"]")
                             .property("checked", true)
@@ -342,9 +349,10 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                             if (this.value === "grouped") transitionGrouped();
                             else transitionStacked();
                         };
-                        
+ 
+                        //NOTE: rescale of the AXES                       
                         function rescale(yrange) {
-                            console.log(yrange);
+                            //console.log(yrange);
                             svg.select(".yaxis")
                                 .transition().duration(1500).ease("sin-in-out")  // https://github.com/mbostock/d3/wiki/Transitions#wiki-d3_ease
                                 .call(yrange);  
@@ -352,6 +360,7 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                                 //.text("Rescaled Axis");
                         };
 
+                        //NOTE: drawing GROUPED BARS
                         function transitionGrouped() {
                             y.domain([0, yGroupMax]);
                             yAxis.scale(y);
@@ -368,6 +377,7 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                             rescale(yAxis);
                         };
                         
+                        //NOTE: drawing STACKED BARS
                         function transitionStacked() {
                             y.domain([0, yStackMax]);
                             yAxis.scale(y);
@@ -383,14 +393,20 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                             
                             rescale(yAxis);
                         };                            
+                        //NOTE: have to remove the graph for updating
+                        //http://stackoverflow.com/questions/12992351/how-to-update-elements-of-d3-force-layout-when-the-underlying-data-changes
 
                     };
 
-
-                    scope.$watch('chartData', function(){
-                        console.log("data inside the directive",scope.chartData[0]);
-                        scope.render(scope.chartData);  
-                    });
+/////////////////////////////////////////////////////////////////////////
+//WATCH FUNCTION
+                    
+//http://cloudspace.com/blog/2014/03/25/creating-d3.js-charts-using-angularjs-directives/#.Vk4qgrxVKlM
+                    scope.$watch('chartData', function(newVal, oldVal){
+                        console.log("data inside the directive",scope.chartData);
+                        console.log(newVal == oldVal);
+                        scope.render(newVal);
+                    }, true);
 
 
                 });
@@ -398,6 +414,42 @@ console.log('this is the render function of the directive ', matrix_data[0]);
         }
     }
 ]);
+
+/////////////////////////////////////////////////////////////////////////
+//INITIALISING DATA
+//The data already comes in form as suggested by ttp://bl.ocks.org/d3noob/b3ff6ae1c120eea654b5
+//The only problem are the DATES          
+
+
+////Test
+//function bumpLayer(n, o) {
+//
+//  function bump(a) {
+//    var x = 1 / (.1 + Math.random()),
+//        y = 2 * Math.random() - .5,
+//        z = 10 / (.1 + Math.random());
+//    for (var i = 0; i < n; i++) {
+//      var w = (i / n - y) * z;
+//      a[i] += x * Math.exp(-w * w);
+//    }
+//  }
+//
+//  var a = [], i;
+//  for (i = 0; i < n; ++i) a[i] = o + o * Math.random();
+//  for (i = 0; i < 5; ++i) bump(a);
+//  return a.map(function(d, i) { return {x: i, y: Math.max(0, d)}; });
+//}
+//
+//
+//var n = 4, // number of layers
+//    m = 58, // number of samples per layer
+//    stack = d3.layout.stack(),
+//    layers = stack(d3.range(n).map(function() { return bumpLayer(m, .1); })),
+//    yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); }),
+//    yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+//console.log(layers, yGroupMax, yStackMax);
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // based on http://bl.ocks.org/d3noob/b3ff6ae1c120eea654b5
