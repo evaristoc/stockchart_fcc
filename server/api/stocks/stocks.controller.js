@@ -25,7 +25,7 @@ exports.index = function(req, res) {
 // Creates a new stocks in the DB.
 // Here I will take care of the symbols in DB... symbols that don't exists, at the browser using the api
 exports.create = function(req, res) {
-  var ticker = req.body.ticker.toUpperCase() 
+  var ticker = req.body.ticker.toUpperCase();
   Stocks.findOne({ticker:ticker}, function(err, ticker){
     if(err) { return handleError(res, err); }
     if (ticker) return res.status(403).send('Symbol (ticker) already exists.');
@@ -62,7 +62,7 @@ exports.create = function(req, res) {
 // Deletes a stocks from the DB.
 // Here we destroy the tickers that people decide to destroy...
 exports.destroy = function(req, res) {
-  Stocks.findById(req.params.ticker, function (err, ticker) {
+  Stocks.findById(req.params.id, function (err, ticker) {
     if(err) { return handleError(res, err); }
     if(!ticker) { return res.status(404).send('Not Found'); }
     ticker.remove(function(err) {

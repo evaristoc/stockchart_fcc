@@ -1,17 +1,21 @@
+<h3>This stockchart project explored the use of plain d3.js with angular</h3>
+<br>
 <div class='container'>
 <div class='row'>
 <div class='col-md-6' id="new_input">
 <div class="entry">
-<form>
+<form name="form">
 <p class="input-group">
-<input type="text" class="form-control" placeholder="Enter stock code" ng-model="newStock" ng-maxlength="5" required>
+<input name="newStock" type="text" class="form-control" placeholder="Enter stock code" ng-model="newStock" ng-maxlength="5" required>
+<!--<div ng-messages="form.newStock.$error">-->
+{{duplicate}}{{notfound}}
 <span class="input-group-btn">
 <button type="submit" class="btn btn-primary" ng-click="addStock()">Add to Chart</button>
 </span>
 </p>
 </form>
 <p class="link"><a href="http://eoddata.com/stocklist/NASDAQ.htm" target="_new">Search for stock codes</a></p>
-<label><input type="checkbox" id="format" ng-click="toggleFormat()"> Show Relative Chart</label>
+<!--<label><input type="checkbox" id="format" ng-click="toggleFormat()"> Show Relative Chart</label>-->
 </div>
 &nbsp &nbsp
 <!--<div class="row tabs">
