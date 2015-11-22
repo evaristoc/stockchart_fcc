@@ -12,8 +12,8 @@ angular.module('stockchartFccApp')
             var tickers = awesomeStocks.reduce(function(pv, v){
                     return pv+',%20%27'+v.name+'%27%20'
                 },[]).slice(1)
-            //var inidatestart = '2015-10-1';
-            //var inidateend = '2015-10-30';
+            $scope.date.start = '2015-10-1';
+            $scope.date.end = '2015-10-30';
             var msg = 'Error';
             yahoofinanceService
                 .performQuery(tickers, $scope.date.start, $scope.date.end)
@@ -25,7 +25,7 @@ angular.module('stockchartFccApp')
             $scope.updateDate = function(){
                 var start = $scope.date.start;
                 var end = $scope.date.end;
-                console.log(tickers, $scope.date.start, $scope.date.end);
+                console.log(tickers, start, end);
                 yahoofinanceService
                     .performQuery(tickers, $scope.date.start, $scope.date.end)
                     .then(function success(data){
@@ -37,7 +37,7 @@ angular.module('stockchartFccApp')
                     });
             }
             
-            $scope.updateDate();
+            //$scope.updateDate();
             
             socket.syncUpdates('thing', $scope.awesomeStocks);
         }); //<--- close the service!!

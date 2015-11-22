@@ -1,10 +1,10 @@
-'use strict';
-
-angular.module('stockchartFccApp')
-  .config(function ($routeProvider) {
-    $routeProvider
-      .when('/', {
-        templateUrl: 'app/main/main.html',
-        controller: 'MainCtrl'
-      });
-  });
+//'use strict';
+//
+//angular.module('stockchartFccApp')
+//  .config(function ($routeProvider) {
+//    $routeProvider
+//      .when('/', {
+//        templateUrl: 'app/main/main.html',
+//        controller: 'MainCtrl'
+//      });
+//  });

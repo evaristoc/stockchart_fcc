@@ -25,13 +25,15 @@ angular.module('stockchartFccApp')
           var deferred = $q.defer();
           var data = [];
           var query = buildQuery(tickers, startDate, endDate);
-          //console.log('query ',query);    
+          console.log('query ',query);    
           $http.get(query).success(function(res) {
             // get rid of unused info and keep date and close price
             if (res.query.results==null) {
               //var data = [];
+              console.log(data);
               return data;
             }
+            console.log(res.query.results.quote);
             var data = res.query.results.quote
               .map(function(item) {
                 //var dateArr = item.Date.split('-');

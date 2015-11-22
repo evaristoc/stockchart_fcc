@@ -1,4 +1,4 @@
-<h3>This stockchart project explored the use of plain d3.js with angular</h3>
+<center><h3>This stockchart project explored the use of plain d3.js with angular</h3></center>
 <br>
 <div class='container'>
 <div class='row'>
@@ -37,11 +37,13 @@ style="width: 70px;">-->
 <div class="col-md-9">
 <form nonvalidate>
 &nbsp &nbsp
-Start: <input type="text" ng-model="date.start" id="start" ng-init="date.start='2015-10-1'"
+Start: <input type="text" ng-model="date.start" id="start" ng-init="date.start='2015-10-01'"
 style="width: 80px;">
+<!--ng-init="date.start='2015-10-1'"-->
 &nbsp &nbsp
-End: <input type="text" ng-model="date.end" id="end" ng-init="date.end='2015-10-30'" 
+End: <input type="text" ng-model="date.end" id="end" ng-init="date.end='2015-10-30'"
 style="width: 80px;">
+<!--ng-init="date.end='2015-10-30'"--> 
 &nbsp &nbsp
 <input name="updateButton" 
 type="button" 
@@ -53,14 +55,22 @@ ng-click="updateDate()" />
 </div>
 <!--</div>-->
 <!--</div>-->
+<h5>IMPORTANT NOTE:</h5>
+using the yahoo finance api
+<br>
+the dates should be digits of the form yyyy-mm-dd
+<br>
+apparently the api has a limit of records: some data could be missing
+<br>
 <div class="col-md-6">
-This is the stocks view.
-{{message}}
+<!--This is the stocks view.
+{{message}}-->
 <form>
 <label><input type="radio" name="mode" value="grouped"> Grouped</label>
 <label><input type="radio" name="mode" value="stacked" checked> Stacked</label>
 </form>
 <div linear-chart chart-data="stockdata"></div>
+
 </div>
 </div>
 </div>

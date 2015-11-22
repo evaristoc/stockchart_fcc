@@ -4,3 +4,7 @@
     stroke-width: 1;
     shape-rendering: crispEdges;
 }
+
+.yaxis text {
+    font-size:12px;
+}

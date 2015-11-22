@@ -85,7 +85,7 @@ angular.module('stockchartFccApp')
                         var pathClass = "path";
                         var xScale, yScale, xAxisGen, yAxisGen, lineFun;
                         
-                        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+                        var margin = {top: 20, right: 20, bottom: 50, left: 40},
                          width = 480 - margin.left - margin.right,
                          height = 360 - margin.top - margin.bottom,
                          padding = 20,
@@ -168,7 +168,7 @@ angular.module('stockchartFccApp')
                                     //console.log(dk);
                                     if (tickers.hasOwnProperty(tk)) {
                                         if (tickers[tk].hasOwnProperty(dk)){
-                                            column.push({x:pos, y:tickers[tk][dk]})
+                                            column.push({x:pos, y:tickers[tk][dk]/100})
                                         }else{
                                             column.push({x:pos, y:0})
                                         };
@@ -367,14 +367,19 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                         svg.append("g")
                             .attr("class", "xaxis")
                             .attr("transform", "translate(0," + height + ")")
-                            .call(xAxis);
+                            .call(xAxis)
+                            .selectAll("text")
+                                .style("text-anchor", "end") 
+                                .attr("font-size", "9px")
+                                .attr("dx", "-.05em")
+                                .attr("transform", "rotate(-65)" );;
                         
                         
                         //NOTE: drawing the Y AXIS
                         //console.log(width - margin.left);
                         var yaxis_pos = width - margin.left
                         
-                        svg.append("g")
+                        var dyAxis = svg.append("g")
                             .attr("class", "yaxis")
                             .call(yAxis)
                             //.attr("transform", "translate(" + yaxis_pos + ",0)")
@@ -383,8 +388,8 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                                 .attr("y", 6)
                                 .attr("dy", ".71em")
                                 .style("text-anchor", "end")
-                                .text("close price ($)")
-                        
+                                .text("close price ($x100)")
+    
 
 //////////////////////////////////////////////////////////////////////
 //ANIMATION SECTION
