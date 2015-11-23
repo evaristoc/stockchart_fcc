@@ -13,6 +13,7 @@
 //http://jsfiddle.net/odiseo/ZnkN6/light/
 //http://www.delimited.io/blog/2014/7/16/d3-directives-in-angularjs
 //https://medium.com/@c_behrens/enter-update-exit-6cafc6014c36#.58nna1ecf
+//http://bl.ocks.org/ColinEberhardt/1c2b4916fc13bbb7e99b
 angular.module('stockchartFccApp')
     .directive('linearChart', ['$window', '$timeout', 'd3Service', function ($window, $timeout, d3Service) {
         return {
@@ -94,7 +95,7 @@ angular.module('stockchartFccApp')
 
 
                         // helper function
-                        function getDate(d) {
+                        function gettingDate(d) {
                             return new Date(d).setHours(0,0,0,0);
                         }
                         
@@ -106,7 +107,7 @@ angular.module('stockchartFccApp')
                         data.forEach(function(t){
                                 //console.log(t);
                                 if (tickers.hasOwnProperty(t.ticker)) {
-                                    tickers[t.ticker][getDate(t.date)] = t.close;
+                                    tickers[t.ticker][gettingDate(t.date)] = t.close;
                                 }else{
                                     tickers[t.ticker] = {};
                                 }
@@ -153,7 +154,7 @@ angular.module('stockchartFccApp')
                         var stdate = findRanges(tickers)[2];
                         var endate = findRanges(tickers)[3];
                         var daterange = findRanges(tickers)[4];
-                        //console.log(max_m, min_m, stdate, endate, daterange);    
+                        console.log(max_m, min_m, stdate, endate, daterange);    
                        
 //BUILD THE REQUIRED DATA STRUCTURE FOR THE STAKED GRAPH
                         //NOTE: try to remember that it is MATRIX OF COLUMNS!!!
@@ -226,7 +227,8 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                         //NOTE: scaling the VALUES of X axis
                         var x = d3.scale
                             .ordinal()
-                            .domain(d3.range(max_m))
+                            .domain(d3.range(1,max_m+1))
+                            //.domain(daterange)
                             .rangeRoundBands([0, width - margin.right - margin.left]);
                         
                         //NOTE: scaling the LABELS of the X axis
@@ -234,10 +236,23 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                             .scale()
                             .domain([stdate, endate])
                             .range([0, width - margin.right - margin.left]);
-
+                        
                         //NOTE: initialising the X AXIS
+                        //var newdaterange = daterange.map(function(v){
+                        //        var fdd = [];
+                        //        var dd = new Date(v);    
+                        //        var d = String(dd.getDate());
+                        //        if (d.length == 1) {
+                        //            d = '0'+d;
+                        //        }
+                        //        var m = String(dd.getMonth()+1);
+                        //        var y = String(dd.getFullYear());
+                        //        return y+m+d
+                        //    })
                         var xAxis = d3.svg.axis()
                             .scale(xdate)
+                            //.scale(x)
+                            //.tickValues(newdaterange)
                             .tickSize(0)
                             .tickPadding(6)
                             .orient("bottom")
@@ -274,9 +289,9 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                             .classed("valgroup", true);
                             //.attr("class", "valgroup")
 
-                        if (status == false) {
-                            valgroup.exit().remove();
-                        }
+                        //if (status == false) {
+                        //    valgroup.exit().remove();
+                        //}
                             
                         valgroup
                             .style("fill", function(d, i) {
@@ -379,15 +394,18 @@ console.log('this is the render function of the directive ', matrix_data[0]);
                         //console.log(width - margin.left);
                         var yaxis_pos = width - margin.left
                         
+                        //http://www.d3noob.org/2012/12/adding-axis-labels-to-d3js-graph.html
                         var dyAxis = svg.append("g")
                             .attr("class", "yaxis")
                             .call(yAxis)
                             //.attr("transform", "translate(" + yaxis_pos + ",0)")
                             .append("text")
                                 .attr("transform", "rotate(-90)")
-                                .attr("y", 6)
+                                //.attr("y", 6)
                                 .attr("dy", ".71em")
-                                .style("text-anchor", "end")
+                                .attr("y", 0 - margin.left)
+                                .attr("x",0 - (height / 2))
+                                .style("text-anchor", "middle")
                                 .text("close price ($x100)")
     
 
